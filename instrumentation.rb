@@ -1,24 +1,32 @@
-require 'net/http'
-require 'uri'
 
-def open(url)
-  Net::HTTP.get(URI.parse(url))
+require 'nokogiri'
+require 'open-uri'
+
+
+doc = Nokogiri::HTML(open('http://imslp.org/wiki/Allegro_vivo_in_C_minor_(Tchaikovsky,_Pyotr)'))
+rows = doc.css('.wi_body tr')
+
+rows.each do | row |
+header = row.css('th')[0].content.strip!
+
+
+if header.eql?('Instrumentation')
+ puts row.css('td')[0].content
+
 end
 
-page_content = open('http://imslp.org/wiki/Allegro_vivo_in_C_minor_(Tchaikovsky,_Pyotr)')
+instrumentation_hash = {}
 
-first_array = page_content.split("<th>Instrumentation")
 
-first_string = first_array.pop
+# instrumentation_hash = { "flutes" => 2, "oboes" => 2, "clarinets" => 2}
 
-second_array = first_string.split("External Links")
+#find_instrumentation('http://imslp.org/wiki/Horn_Concerto_in_E-flat_major,_K.417_(Mozart,_Wolfgang_Amadeus)')
+#find_instrumentation('http://imslp.org/wiki/Allegro_vivo_in_C_minor_(Tchaikovsky,_Pyotr)')
 
-raw_instrumentation_string = second_array.shift
+# { "flutes": 2,
+#   "oboes": 2,
+#   "clarinets": 2,
+# look up ruby hash, split (strings), regular expressions
 
-instrumentation_string = raw_instrumentation_string.sub("(B<span class=\"music-symbol\" style=\"font-family\: Arial Unicode MS, Lucida Sans Unicode\; font-size\:110\%\"\>\&\#x266d\;\</span>)", "").sub(" (E\<span class=\"music-symbol\" style=\"font-family: Arial Unicode MS, Lucida Sans Unicode; font-size:110%\">&#x266d;</span>\)", ",").sub(" +", ",").sub("<td><i>Orchestra</i>: ", "")
-
-puts instrumentation_string
-
-#other things I've tried but not made work properly
-#instrumentation_string = page_content.scan( /<th> Instrumentation([^>]*)External Links/).first
-#instrumentation_string = raw_instrumentation_string.sub(/B<span...<\/span>)/, "")
+# puts /(?<number>[0-9])\W*(?<instrument>.+)/.match('2 oboes')
+end
